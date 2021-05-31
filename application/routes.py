@@ -6,23 +6,6 @@ from flask_login import login_required, logout_user, current_user, login_user
 from .models import User, UserSchema, sqlalc
 
 
-@app.route('/register', methods=[ 'POST'])
-def signup_user():
-    data = request.get_json()
-
-    is_user_exists = (User.query.filter(User.username == data['username']).first()) is not None 
-    if is_user_exists:
-        return ({'msg:': f"User with username: {data['username']} is already registered!"}) , 409
-
-    user_schema = UserSchema()
-    new_user = user_schema.load(data, session=sqlalc.session)
-    # Add the user to the database
-    sqlalc.session.add(new_user)
-    sqlalc.session.commit()
-    # flask_login: login_user() is a method that comes from the flask_login package that does exactly what it says
-    login_user(user)  
-
-    return  {'Msg':'Registered and logged in successfully!'}, 201 
 
 
 @app.route('/login', methods=[ 'POST'])
@@ -109,3 +92,22 @@ def user_one(id):
     # Otherwise, nope, didn't find that user
     else:
         abort(404, f"User not found for id: {id}")
+
+
+@app.route('/register', methods=[ 'POST'])
+def signup_user():
+    data = request.get_json()
+
+    is_user_exists = (User.query.filter(User.username == data['username']).first()) is not None 
+    if is_user_exists:
+        return ({'msg:': f"User with username: {data['username']} is already registered!"}) , 409
+
+    user_schema = UserSchema()
+    new_user = user_schema.load(data, session=sqlalc.session)
+    # Add the user to the database
+    sqlalc.session.add(new_user)
+    sqlalc.session.commit()
+    # flask_login: login_user() is a method that comes from the flask_login package that does exactly what it says
+    login_user(user)  
+
+    return  {'Msg':'Registered successfully!'}, 201 
